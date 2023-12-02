@@ -1,24 +1,25 @@
 const std = @import("std");
+const coords = @embedFile("input.txt");
 
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+    const nums = [_][]const u8{ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+    _ = nums;
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    var line_slices = std.mem.splitSequence(u8, coords, "\n");
+    var sum: u32 = 0;
+    while (line_slices.next()) |line| {
+        var values = [_]u8{ 0, 0 };
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+        for (line) |char| {
+            if (char > '0' and char <= '9') {
+                if (values[0] == 0) {
+                    values[0] = char;
+                }
 
-    try bw.flush(); // don't forget to flush!
-}
-
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+                values[1] = char;
+            } else {}
+        }
+        sum += try std.fmt.parseInt(u32, &values, 10);
+    }
+    std.debug.print("{d}\n", .{sum});
 }
